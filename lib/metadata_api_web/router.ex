@@ -5,8 +5,10 @@ defmodule MetadataApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", MetadataApiWeb do
+  scope "/", MetadataApiWeb do
     pipe_through :api
+
+    resources "/services", ServiceController, only: [:create, :show] #except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development

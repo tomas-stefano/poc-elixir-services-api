@@ -2,6 +2,7 @@ defmodule MetadataApiWeb.ServiceController do
   use MetadataApiWeb, :controller
 
   alias MetadataApi.ServiceRepo
+  alias MetadataApi.MetadataRepo
   alias MetadataApi.ServiceRepo.Service
 
   action_fallback MetadataApiWeb.FallbackController
@@ -33,5 +34,12 @@ defmodule MetadataApiWeb.ServiceController do
       metadata = ServiceRepo.last_metadata!(service.id)
       render(conn, "service.json", service: service, metadata: metadata)
     end
+  end
+
+  def versions(conn, %{"service_id" => id}) do
+    service = ServiceRepo.get_service!(id)
+    metadata = MetadataRepo.all_versions(service)
+
+    render(conn, "versions.json", service: service, metadata: metadata)
   end
 end

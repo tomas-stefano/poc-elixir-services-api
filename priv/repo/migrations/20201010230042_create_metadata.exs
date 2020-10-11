@@ -10,7 +10,7 @@ defmodule MetadataApi.Repo.Migrations.CreateMetadata do
       add :updated_by, :string, null: false
       add :version_id, :uuid, null: false
       add :version_number, :integer
-      add :service_id, references(:services, on_delete: :nothing, type: :binary_id)
+      add :service_id, references(:services, on_delete: :nothing, type: :binary_id), null: false
 
       timestamps()
     end

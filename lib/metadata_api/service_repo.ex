@@ -9,6 +9,15 @@ defmodule MetadataApi.ServiceRepo do
   alias MetadataApi.ServiceRepo.Service
   alias MetadataApi.MetadataRepo.Metadata
 
+  def all do
+    Repo.all(Service)
+    |> Repo.preload(:metadata)
+  end
+
+  def count do
+    Repo.aggregate(Service, :count, :id)
+  end
+
   @doc """
   Returns the list of services.
 
@@ -79,7 +88,7 @@ defmodule MetadataApi.ServiceRepo do
   def update_service(%Service{} = service, attrs) do
     service
     |> Repo.preload(:metadata)
-    |> Service.changeset(prepare_attributes(attrs))
+    |> Service.changeset(Map.merge(prepare_attributes(attrs), %{service_id: service.id}))
     |> Repo.update()
   end
 

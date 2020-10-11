@@ -1,3 +1,4 @@
+import IEx
 defmodule MetadataApiWeb.ServiceControllerTest do
   use MetadataApiWeb.ConnCase
 
@@ -50,6 +51,10 @@ defmodule MetadataApiWeb.ServiceControllerTest do
           "pages" => [%{"url" => "/" }]
         }
       } = json_response(conn, 201)
+      assert ServiceRepo.count == 1
+      assert MetadataRepo.count == 1
+
+      assert List.first(MetadataRepo.all).service_id == id
     end
 
     test "when not passing any metadata", %{conn: conn} do
@@ -96,6 +101,7 @@ defmodule MetadataApiWeb.ServiceControllerTest do
     setup [:create_service]
 
     test "creates more metadata version", %{conn: conn, service: %Service{id: id} = service} do
+      assert ServiceRepo.count == 1
       assert MetadataRepo.count == 1
       conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
       assert %{
@@ -109,6 +115,7 @@ defmodule MetadataApiWeb.ServiceControllerTest do
               }
             } = json_response(conn, 200)
 
+      assert ServiceRepo.count == 1
       assert MetadataRepo.count == 2
     end
 
@@ -126,6 +133,39 @@ defmodule MetadataApiWeb.ServiceControllerTest do
           ],
           "service_name" => ["can't be blank"]
         }
+      }
+    end
+  end
+
+  describe "GET /services/:id/versions" do
+    test "returns all metadata versions", %{conn: conn} do
+      conn = post(conn, Routes.service_path(conn, :create), @create_attrs)
+      id = json_response(conn, 201)["metadata"]["service_id"]
+      conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
+      IEx.pry
+      assert MetadataRepo.count == 2
+
+      conn = get(conn, Routes.service_versions_path(conn, :versions, id))
+      service = ServiceRepo.get_service!(id)
+      all_versions = MetadataRepo.all_versions(service)
+      assert length(all_versions) == 2
+
+      last_metadata = List.last(all_versions)
+      first_metadata = List.first(all_versions)
+
+      assert json_response(conn, 200) == %{
+        "service_id" => service.id,
+        "service_name" => service.service_name,
+        "versions" => [
+          %{
+            "version_id" => last_metadata[:version_id],
+            "version_number" => last_metadata[:version_number]
+          },
+          %{
+            "version_id" => first_metadata[:version_id],
+            "version_number" => first_metadata[:version_number]
+          }
+        ]
       }
     end
   end

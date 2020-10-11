@@ -15,4 +15,19 @@ defmodule MetadataApiWeb.ServiceView do
     }
     %{ metadata: Map.merge(metadata.data, basic_metadata["metadata"]) }
   end
+
+  def render("versions.json", %{service: service, metadata: metadata}) do
+    versions = Enum.map(metadata, fn(version) ->
+      %{
+        "version_id" => version[:version_id],
+        "version_number" => version[:version_number]
+      }
+    end)
+
+    %{
+      "service_id" => service.id,
+      "service_name" => service.service_name,
+      "versions" => versions
+    }
+  end
 end

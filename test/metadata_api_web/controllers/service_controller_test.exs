@@ -46,6 +46,17 @@ defmodule MetadataApiWeb.ServiceControllerTest do
         }
       }  = json_response(conn, 422)
     end
+
+    test "when not passing anything", %{conn: conn} do
+      conn = post(conn, Routes.service_path(conn, :create), %{})
+
+      assert %{
+        "message" => %{
+          "service_name" => ["can't be blank"],
+          "metadata" => ["can't be blank"]
+        }
+      } = json_response(conn, 422)
+    end
   end
 
 #  @update_attrs %{

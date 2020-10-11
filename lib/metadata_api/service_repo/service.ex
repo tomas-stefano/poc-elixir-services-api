@@ -7,6 +7,8 @@ defmodule MetadataApi.ServiceRepo.Service do
   schema "services" do
     field :service_name, :string
 
+    has_many :metadata, MetadataApi.MetadataRepo.Metadata, on_delete: :delete_all
+
     timestamps()
   end
 
@@ -15,6 +17,7 @@ defmodule MetadataApi.ServiceRepo.Service do
   def changeset(service, attrs) do
     service
     |> cast(attrs, [:service_name])
+    |> cast_assoc(:metadata, required: true)
     |> validate_required([:service_name])
   end
 end

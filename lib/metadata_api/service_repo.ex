@@ -50,8 +50,23 @@ defmodule MetadataApi.ServiceRepo do
 
   """
   def create_service(attrs \\ %{}) do
+    metadata = attrs["metadata"]
+
+    attributes = if metadata do
+    %{
+      service_name: metadata["service_name"],
+      metadata: [%{
+        data: metadata,
+        created_by: metadata["created_by"],
+        updated_by: metadata["updated_by"]
+      }]
+    }
+    else
+      %{}
+    end
+
     %Service{}
-    |> Service.changeset(attrs)
+    |> Service.changeset(attributes)
     |> Repo.insert()
   end
 

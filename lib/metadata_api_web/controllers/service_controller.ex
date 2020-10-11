@@ -11,8 +11,8 @@ defmodule MetadataApiWeb.ServiceController do
 #    render(conn, "index.json", services: services)
 #  end
 
-  def create(conn, %{"metadata" => metadata}) do
-    with {:ok, %Service{} = service} <- ServiceRepo.create_service(metadata) do
+  def create(conn, metadata_params) do
+    with {:ok, %Service{} = service} <- ServiceRepo.create_service(metadata_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.service_path(conn, :show, service))
@@ -20,10 +20,10 @@ defmodule MetadataApiWeb.ServiceController do
     end
   end
 
-#  def show(conn, %{"id" => id}) do
-#    service = ServiceRepo.get_service!(id)
+  def show(conn, %{"id" => id}) do
+#    service = ServiceRepo.last_metadata!(id)
 #    render(conn, "show.json", service: service)
-#  end
+  end
 #
 #  def update(conn, %{"id" => id, "service" => service_params}) do
 #    service = ServiceRepo.get_service!(id)

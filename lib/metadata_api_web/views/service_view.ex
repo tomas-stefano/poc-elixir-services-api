@@ -11,11 +11,12 @@ defmodule MetadataApiWeb.ServiceView do
   end
 
   def render("service.json", %{service: service}) do
-    %{
-      metadata: %{
-        service_id: service.id,
-        service_name: service.service_name
+    basic_metadata = %{
+      "metadata" => %{
+        "service_id" => service.id,
+        "service_name" => service.service_name
       }
     }
+    %{ metadata: Map.merge(List.last(service.metadata).data, basic_metadata["metadata"]) }
   end
 end

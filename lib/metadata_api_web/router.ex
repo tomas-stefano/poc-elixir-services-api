@@ -8,7 +8,7 @@ defmodule MetadataApiWeb.Router do
   scope "/", MetadataApiWeb do
     pipe_through :api
 
-    resources "/services", ServiceController, only: [:create, :show] #except: [:new, :edit]
+    resources "/services", ServiceController, only: [:create, :update, :show] #except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development

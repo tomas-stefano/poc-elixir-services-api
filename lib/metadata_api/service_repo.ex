@@ -7,6 +7,7 @@ defmodule MetadataApi.ServiceRepo do
   alias MetadataApi.Repo
 
   alias MetadataApi.ServiceRepo.Service
+  alias MetadataApi.MetadataRepo.Metadata
 
   @doc """
   Returns the list of services.
@@ -37,6 +38,14 @@ defmodule MetadataApi.ServiceRepo do
   """
   def get_service!(id), do: Repo.get!(Service, id)
 
+  def last_metadata!(id) do
+    Repo.one(
+      from metadata in Metadata,
+      where: metadata.service_id == ^id,
+      order_by: [desc: metadata.inserted_at], limit: 1
+    )
+  end
+
   @doc """
   Creates a service.
 
@@ -50,23 +59,8 @@ defmodule MetadataApi.ServiceRepo do
 
   """
   def create_service(attrs \\ %{}) do
-    metadata = attrs["metadata"]
-
-    attributes = if metadata do
-    %{
-      service_name: metadata["service_name"],
-      metadata: [%{
-        data: metadata,
-        created_by: metadata["created_by"],
-        updated_by: metadata["updated_by"]
-      }]
-    }
-    else
-      %{}
-    end
-
     %Service{}
-    |> Service.changeset(attributes)
+    |> Service.changeset(prepare_attributes(attrs))
     |> Repo.insert()
   end
 
@@ -84,7 +78,8 @@ defmodule MetadataApi.ServiceRepo do
   """
   def update_service(%Service{} = service, attrs) do
     service
-    |> Service.changeset(attrs)
+    |> Repo.preload(:metadata)
+    |> Service.changeset(prepare_attributes(attrs))
     |> Repo.update()
   end
 
@@ -115,5 +110,22 @@ defmodule MetadataApi.ServiceRepo do
   """
   def change_service(%Service{} = service, attrs \\ %{}) do
     Service.changeset(service, attrs)
+  end
+
+  defp prepare_attributes(attrs) do
+    metadata = attrs["metadata"]
+
+    if metadata do
+    %{
+      service_name: metadata["service_name"],
+      metadata: [%{
+        data: metadata,
+        created_by: metadata["created_by"],
+        updated_by: metadata["updated_by"]
+      }]
+    }
+    else
+      %{}
+    end
   end
 end

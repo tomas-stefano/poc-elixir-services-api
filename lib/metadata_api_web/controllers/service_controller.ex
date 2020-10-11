@@ -16,28 +16,22 @@ defmodule MetadataApiWeb.ServiceController do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.service_path(conn, :show, service))
-      |> render("show.json", service: service)
+      |> render("service.json", service: service, metadata: List.last(service.metadata))
     end
   end
 
   def show(conn, %{"id" => id}) do
-#    service = ServiceRepo.last_metadata!(id)
-#    render(conn, "show.json", service: service)
+    service = ServiceRepo.get_service!(id)
+    metadata = ServiceRepo.last_metadata!(id)
+    render(conn, "service.json", service: service, metadata: metadata)
   end
-#
-#  def update(conn, %{"id" => id, "service" => service_params}) do
-#    service = ServiceRepo.get_service!(id)
-#
-#    with {:ok, %Service{} = service} <- ServiceRepo.update_service(service, service_params) do
-#      render(conn, "show.json", service: service)
-#    end
-#  end
-#
-#  def delete(conn, %{"id" => id}) do
-#    service = ServiceRepo.get_service!(id)
-#
-#    with {:ok, %Service{}} <- ServiceRepo.delete_service(service) do
-#      send_resp(conn, :no_content, "")
-#    end
-#  end
+
+  def update(conn, service_params) do
+    service = ServiceRepo.get_service!(service_params["id"])
+
+    with {:ok, %Service{} = service} <- ServiceRepo.update_service(service, service_params) do
+      metadata = ServiceRepo.last_metadata!(service.id)
+      render(conn, "service.json", service: service, metadata: metadata)
+    end
+  end
 end

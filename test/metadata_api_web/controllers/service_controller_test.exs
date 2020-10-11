@@ -1,19 +1,34 @@
 defmodule MetadataApiWeb.ServiceControllerTest do
   use MetadataApiWeb.ConnCase
 
-#  alias MetadataApi.ServiceRepo
-#  alias MetadataApi.ServiceRepo.Service
+  alias MetadataApi.ServiceRepo
+  alias MetadataApi.MetadataRepo
+  alias MetadataApi.ServiceRepo.Service
 
   @create_attrs %{
-    metadata: %{
-      service_name: "Formatron",
-      created_by: "1234",
-      updated_by: "1234",
-      pages: [
+    "metadata" => %{
+      "service_name" => "Formatron",
+      "created_by" => "1234",
+      "updated_by" => "1234",
+      "pages" => [
         %{ url: "/" }
       ]
     }
   }
+  @update_attrs %{
+    "metadata" => %{
+      "service_name" => "Formatron",
+      "created_by" => "1234",
+      "updated_by" => "1234",
+      "pages" => [
+        %{ url: "/" }
+      ],
+      "configuration" => %{
+        "_type" => "something"
+      }
+    }
+  }
+  @invalid_attrs %{ "metadata" => %{}}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -59,82 +74,69 @@ defmodule MetadataApiWeb.ServiceControllerTest do
     end
   end
 
-#  @update_attrs %{
-#    name: "some updated name"
-#  }
-#  @invalid_attrs %{name: nil}
-#
-#  def fixture(:service) do
-#    {:ok, service} = ServiceRepo.create_service(@create_attrs)
-#    service
-#  end
-#
-#  setup %{conn: conn} do
-#    {:ok, conn: put_req_header(conn, "accept", "application/json")}
-#  end
-#
-#  describe "index" do
-#    test "lists all services", %{conn: conn} do
-#      conn = get(conn, Routes.service_path(conn, :index))
-#      assert json_response(conn, 200)["data"] == []
-#    end
-#  end
-#
-#  describe "create service" do
-#    test "renders service when data is valid", %{conn: conn} do
-#      conn = post(conn, Routes.service_path(conn, :create), service: @create_attrs)
-#      assert %{"id" => id} = json_response(conn, 201)["data"]
-#
-#      conn = get(conn, Routes.service_path(conn, :show, id))
-#
-#      assert %{
-#               "id" => id,
-#               "name" => "some name"
-#             } = json_response(conn, 200)["data"]
-#    end
-#
-#    test "renders errors when data is invalid", %{conn: conn} do
-#      conn = post(conn, Routes.service_path(conn, :create), service: @invalid_attrs)
-#      assert json_response(conn, 422)["errors"] != %{}
-#    end
-#  end
-#
-#  describe "update service" do
-#    setup [:create_service]
-#
-#    test "renders service when data is valid", %{conn: conn, service: %Service{id: id} = service} do
-#      conn = put(conn, Routes.service_path(conn, :update, service), service: @update_attrs)
-#      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-#
-#      conn = get(conn, Routes.service_path(conn, :show, id))
-#
-#      assert %{
-#               "id" => id,
-#               "name" => "some updated name"
-#             } = json_response(conn, 200)["data"]
-#    end
-#
-#    test "renders errors when data is invalid", %{conn: conn, service: service} do
-#      conn = put(conn, Routes.service_path(conn, :update, service), service: @invalid_attrs)
-#      assert json_response(conn, 422)["errors"] != %{}
-#    end
-#  end
-#
-#  describe "delete service" do
-#    setup [:create_service]
-#
-#    test "deletes chosen service", %{conn: conn, service: service} do
-#      conn = delete(conn, Routes.service_path(conn, :delete, service))
-#      assert response(conn, 204)
-#
-#      assert_error_sent 404, fn ->
-#        get(conn, Routes.service_path(conn, :show, service))
-#      end
-#    end
-#  end
-#
-#  defp create_service(_) do
-#    service = fixture(:service)
-#    %{service: service}
-#  end
+  describe "GET /services/:id" do
+    test "returns the latest metadata", %{conn: conn} do
+      service = fixture(:service)
+
+      conn = get(conn, Routes.service_path(conn, :show, service.id))
+
+      assert %{
+              "metadata" => %{
+                "created_by" => "1234",
+                "pages" => [%{"url" => "/"}],
+                "service_id" => id,
+                "service_name" => "Formatron",
+                "updated_by" => "1234"
+              }
+            } = json_response(conn, 200)
+    end
+  end
+
+  describe "PUT /services/:id" do
+    setup [:create_service]
+
+    test "creates more metadata version", %{conn: conn, service: %Service{id: id} = service} do
+      assert MetadataRepo.count == 1
+      conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
+      assert %{
+              "metadata" => %{
+                "configuration" => %{"_type" => "something"},
+                "created_by" => "1234",
+                "pages" => [%{"url" => "/"}],
+                "service_id" => id,
+                "service_name" => "Formatron",
+                "updated_by" => "1234"
+              }
+            } = json_response(conn, 200)
+
+      assert MetadataRepo.count == 2
+    end
+
+    test "renders errors when data is invalid", %{conn: conn, service: service} do
+      assert MetadataRepo.count == 1
+      conn = put(conn, Routes.service_path(conn, :update, service.id), @invalid_attrs)
+      assert MetadataRepo.count == 1
+      assert json_response(conn, 422) == %{
+        "message" => %{
+          "metadata" => [
+            %{},
+            %{
+              "created_by" => ["can't be blank"],
+              "updated_by" => ["can't be blank"]}
+          ],
+          "service_name" => ["can't be blank"]
+        }
+      }
+    end
+  end
+
+  def fixture(:service) do
+    {:ok, service} = ServiceRepo.create_service(@create_attrs)
+    service
+  end
+
+  defp create_service(_) do
+    service = fixture(:service)
+    %{service: service}
+  end
 end

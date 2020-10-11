@@ -7,7 +7,7 @@ defmodule MetadataApi.ServiceRepo.Service do
   schema "services" do
     field :service_name, :string
 
-    has_many :metadata, MetadataApi.MetadataRepo.Metadata, on_delete: :delete_all
+    has_many :metadata, MetadataApi.MetadataRepo.Metadata, on_delete: :delete_all, on_replace: :nilify
 
     timestamps()
   end

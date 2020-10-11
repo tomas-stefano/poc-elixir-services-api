@@ -6,17 +6,13 @@ defmodule MetadataApiWeb.ServiceView do
     render_many(services, ServiceView, "service.json")
   end
 
-  def render("show.json", %{service: service}) do
-    render_one(service, ServiceView, "service.json")
-  end
-
-  def render("service.json", %{service: service}) do
+  def render("service.json", %{service: service, metadata: metadata}) do
     basic_metadata = %{
       "metadata" => %{
         "service_id" => service.id,
         "service_name" => service.service_name
       }
     }
-    %{ metadata: Map.merge(List.last(service.metadata).data, basic_metadata["metadata"]) }
+    %{ metadata: Map.merge(metadata.data, basic_metadata["metadata"]) }
   end
 end

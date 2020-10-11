@@ -1,4 +1,3 @@
-import IEx
 defmodule MetadataApi.MetadataRepo do
   @moduledoc """
   The MetadataRepo context.

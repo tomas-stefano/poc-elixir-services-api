@@ -195,6 +195,68 @@ defmodule MetadataApiWeb.ServiceControllerTest do
     end
   end
 
+  describe "GET /services/user/:user_id" do
+    test "returns all services from an user", %{conn: conn} do
+      conn = post(
+        conn,
+        Routes.service_path(conn, :create),
+        %{
+           "metadata" => %{
+             "service_name" => "Formatron",
+             "created_by" => "1234",
+             "updated_by" => "1234",
+             "pages" => [
+               %{ url: "/" }
+             ]
+           }
+        }
+      )
+      first_service = json_response(conn, 201)["metadata"]["service_id"]
+      conn = post(
+        conn,
+        Routes.service_path(conn, :create),
+        %{
+           "metadata" => %{
+             "service_name" => "Metatron",
+             "created_by" => "1234",
+             "updated_by" => "1234",
+             "pages" => [
+               %{ url: "/" }
+             ]
+           }
+        }
+      )
+      second_service = json_response(conn, 201)["metadata"]["service_id"]
+      post(
+        conn,
+        Routes.service_path(conn, :create),
+        %{
+           "metadata" => %{
+             "service_name" => "Greedo",
+             "created_by" => "12345",
+             "updated_by" => "12345",
+             "pages" => [
+               %{ url: "/" }
+             ]
+           }
+        }
+      )
+      conn = get(conn, Routes.services_user_path(conn, :list_services_from_user, "1234"))
+      assert %{
+        "services" => [
+          %{
+            "service_id" => first_service,
+            "service_name" => "Formatron"
+          },
+          %{
+            "service_id" => second_service,
+            "service_name" => "Metatron"
+          }
+        ]
+      } == json_response(conn, 200)
+    end
+  end
+
   def fixture(:service) do
     {:ok, service} = ServiceRepo.create_service(@create_attrs)
     service

@@ -2,10 +2,6 @@ defmodule MetadataApiWeb.ServiceView do
   use MetadataApiWeb, :view
   alias MetadataApiWeb.ServiceView
 
-  def render("index.json", %{services: services}) do
-    render_many(services, ServiceView, "service.json")
-  end
-
   def render("service.json", %{service: service, metadata: metadata}) do
     basic_metadata = %{
       "metadata" => %{
@@ -46,5 +42,16 @@ defmodule MetadataApiWeb.ServiceView do
         "updated_by" => metadata.updated_by
       }
     )
+  end
+
+  def render("list_services_from_user.json", %{services: services}) do
+    %{services: render_many(services, ServiceView, "service_from_user.json")}
+  end
+
+  def render("service_from_user.json", %{service: service}) do
+    %{
+      "service_id" => service.id,
+      "service_name" => service.service_name
+    }
   end
 end

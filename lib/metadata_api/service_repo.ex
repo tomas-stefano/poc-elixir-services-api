@@ -1,4 +1,3 @@
-import IEx
 defmodule MetadataApi.ServiceRepo do
   @moduledoc """
   The ServiceRepo context.
@@ -30,6 +29,15 @@ defmodule MetadataApi.ServiceRepo do
   """
   def list_services do
     Repo.all(Service)
+  end
+
+  def list_services_from_user(user_id) do
+    metadata = Metadata
+    Repo.all(
+      from services in Service,
+      join: m in ^metadata,
+      on: [service_id: services.id, created_by: ^user_id]
+    )
   end
 
   @doc """

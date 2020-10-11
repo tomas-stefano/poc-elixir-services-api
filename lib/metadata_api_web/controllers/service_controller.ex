@@ -48,4 +48,9 @@ defmodule MetadataApiWeb.ServiceController do
 
     render(conn, "version.json", metadata: metadata)
   end
+
+  def list_services_from_user(conn, %{"user_id" => user_id}) do
+    services = ServiceRepo.list_services_from_user(user_id)
+    render(conn, "list_services_from_user.json", services: services)
+  end
 end

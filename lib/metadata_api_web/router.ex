@@ -12,6 +12,8 @@ defmodule MetadataApiWeb.Router do
       get "/versions", ServiceController, :versions, as: :versions
       get "/versions/:version_id", ServiceController, :version, as: :version
     end
+
+    get "/services/user/:user_id", ServiceController, :list_services_from_user, as: :services_user
   end
 
   scope "/health_check", log: false do

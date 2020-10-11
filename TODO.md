@@ -5,3 +5,4 @@
 * Test more and see if I forgot anything.
 * Test with real data (real metadata).
 * Test DB performance to see if I forgot any indexes.
+* Migrations needs to run in the docker. Why it doesn't work? ¬¬'

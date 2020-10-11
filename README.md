@@ -1,19 +1,25 @@
 # MetadataApi
 
-To start your Phoenix server:
+This is a Proof of concept in Elixir of
+[MoJ Metadata API](https://ministryofjustice.github.io/form-builder-metadata-api-docs/)
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server`
+## Caveats
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+I am new into Elixir so probably there are some improvements and refactors that
+could be done.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Setup
 
-## Learn more
+You need to have installed:
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+* Docker
+
+Then:
+
+```
+  docker-compose up -d
+  docker-compose exec metadata-app mix ecto.migrate
+```
+
+The application will run in the 0.0.0.0:4000
+Have fun!

@@ -31,6 +31,14 @@ defmodule MetadataApi.MetadataRepo do
     )
   end
 
+  def get_version(service_id: service_id, version_id: version_id) do
+    Repo.one(
+      from metadata in Metadata,
+      where: metadata.service_id == ^service_id and metadata.version_id == ^version_id
+    )
+    |> Repo.preload(:service)
+  end
+
   def create(service, attrs \\ %{}) do
     attributes = prepare_attributes(Map.merge(attrs, %{"service_id" => service.id}))
 

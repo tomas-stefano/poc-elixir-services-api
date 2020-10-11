@@ -42,4 +42,10 @@ defmodule MetadataApiWeb.ServiceController do
 
     render(conn, "versions.json", service: service, metadata: metadata)
   end
+
+  def version(conn, %{"service_id" => id, "version_id" => version_id}) do
+    metadata = MetadataRepo.get_version(service_id: id, version_id: version_id)
+
+    render(conn, "version.json", metadata: metadata)
+  end
 end

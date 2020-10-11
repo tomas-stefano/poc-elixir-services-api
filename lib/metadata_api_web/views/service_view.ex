@@ -31,4 +31,20 @@ defmodule MetadataApiWeb.ServiceView do
       "versions" => versions
     }
   end
+
+  def render("version.json", %{metadata: metadata}) do
+    Map.merge(
+      metadata.data,
+      %{
+        "service_name" => metadata.service.service_name,
+        "service_id" => metadata.service_id,
+        "version_id" => metadata.version_id,
+        "version_number" => metadata.version_number,
+        "created_at" => NaiveDateTime.to_iso8601(metadata.inserted_at),
+        "updated_at" => NaiveDateTime.to_iso8601(metadata.updated_at),
+        "created_by" => metadata.created_by,
+        "updated_by" => metadata.updated_by
+      }
+    )
+  end
 end

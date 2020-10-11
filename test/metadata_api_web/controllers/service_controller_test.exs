@@ -1,4 +1,3 @@
-import IEx
 defmodule MetadataApiWeb.ServiceControllerTest do
   use MetadataApiWeb.ConnCase
 
@@ -38,16 +37,16 @@ defmodule MetadataApiWeb.ServiceControllerTest do
   describe "POST /services" do
     test "when passing the metadata", %{conn: conn} do
       conn = post(conn, Routes.service_path(conn, :create), @create_attrs)
-      service_name = @create_attrs[:metadata][:service_name]
-      created_by = @create_attrs[:metadata][:created_by]
-      updated_by = @create_attrs[:metadata][:updated_by]
+      _service_name = @create_attrs[:metadata][:service_name]
+      _created_by = @create_attrs[:metadata][:created_by]
+      _updated_by = @create_attrs[:metadata][:updated_by]
 
       assert %{
         "metadata" => %{
           "service_id" => id,
-          "service_name" => service_name,
-          "created_by" => created_by,
-          "updated_by" => updated_by,
+          "service_name" => _service_name,
+          "created_by" => _created_by,
+          "updated_by" => _updated_by,
           "pages" => [%{"url" => "/" }]
         }
       } = json_response(conn, 201)
@@ -100,7 +99,7 @@ defmodule MetadataApiWeb.ServiceControllerTest do
   describe "PUT /services/:id" do
     setup [:create_service]
 
-    test "creates more metadata version", %{conn: conn, service: %Service{id: id} = service} do
+    test "creates more metadata version", %{conn: conn, service: %Service{id: id}} do
       assert ServiceRepo.count == 1
       assert MetadataRepo.count == 1
       conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
@@ -163,6 +162,35 @@ defmodule MetadataApiWeb.ServiceControllerTest do
             "created_at" => NaiveDateTime.to_iso8601(first_metadata.inserted_at)
           }
         ]
+      }
+    end
+  end
+
+  describe "GET /services/:id/versions/:version_id" do
+    test "returns the metadata version", %{conn: conn} do
+      conn = post(conn, Routes.service_path(conn, :create), @create_attrs)
+      id = json_response(conn, 201)["metadata"]["service_id"]
+
+      conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
+      assert MetadataRepo.count == 2
+      versions = MetadataRepo.all
+
+      # order by inserted at desc mean the last updated is the first one
+      metadata = List.first(versions)
+      service = ServiceRepo.get_service!(id)
+
+      conn = get(conn, Routes.service_version_path(conn, :version, id, metadata.version_id))
+
+      assert json_response(conn, 200) == %{
+        "service_name" => service.service_name,
+        "service_id" => service.id,
+        "version_id" => metadata.version_id,
+        "version_number" => metadata.version_number,
+        "created_at" => NaiveDateTime.to_iso8601(metadata.inserted_at),
+        "updated_at" => NaiveDateTime.to_iso8601(metadata.updated_at),
+        "created_by" => metadata.created_by,
+        "updated_by" => metadata.updated_by,
+        "pages" => [%{"url" => "/"}]
       }
     end
   end

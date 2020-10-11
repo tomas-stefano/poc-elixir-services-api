@@ -10,6 +10,7 @@ defmodule MetadataApiWeb.Router do
 
     resources "/services", ServiceController, only: [:create, :update, :show] do
       get "/versions", ServiceController, :versions, as: :versions
+      get "/versions/:version_id", ServiceController, :version, as: :version
     end
   end
 

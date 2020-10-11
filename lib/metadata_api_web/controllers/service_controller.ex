@@ -4,6 +4,7 @@ defmodule MetadataApiWeb.ServiceController do
   alias MetadataApi.ServiceRepo
   alias MetadataApi.MetadataRepo
   alias MetadataApi.ServiceRepo.Service
+  alias MetadataApi.MetadataRepo.Metadata
 
   action_fallback MetadataApiWeb.FallbackController
 
@@ -30,8 +31,7 @@ defmodule MetadataApiWeb.ServiceController do
   def update(conn, service_params) do
     service = ServiceRepo.get_service!(service_params["id"])
 
-    with {:ok, %Service{} = service} <- ServiceRepo.update_service(service, service_params) do
-      metadata = ServiceRepo.last_metadata!(service.id)
+    with {:ok, %Metadata{} = metadata} <- MetadataRepo.create(service, service_params) do
       render(conn, "service.json", service: service, metadata: metadata)
     end
   end

@@ -1,3 +1,4 @@
+import IEx
 defmodule MetadataApi.ServiceRepo do
   @moduledoc """
   The ServiceRepo context.
@@ -71,25 +72,6 @@ defmodule MetadataApi.ServiceRepo do
     %Service{}
     |> Service.changeset(prepare_attributes(attrs))
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a service.
-
-  ## Examples
-
-      iex> update_service(service, %{field: new_value})
-      {:ok, %Service{}}
-
-      iex> update_service(service, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_service(%Service{} = service, attrs) do
-    service
-    |> Repo.preload(:metadata)
-    |> Service.changeset(Map.merge(prepare_attributes(attrs), %{service_id: service.id}))
-    |> Repo.update()
   end
 
   @doc """

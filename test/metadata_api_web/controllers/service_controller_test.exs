@@ -125,13 +125,8 @@ defmodule MetadataApiWeb.ServiceControllerTest do
       assert MetadataRepo.count == 1
       assert json_response(conn, 422) == %{
         "message" => %{
-          "metadata" => [
-            %{},
-            %{
-              "created_by" => ["can't be blank"],
-              "updated_by" => ["can't be blank"]}
-          ],
-          "service_name" => ["can't be blank"]
+          "created_by" => ["can't be blank"],
+          "updated_by" => ["can't be blank"]
         }
       }
     end
@@ -141,29 +136,31 @@ defmodule MetadataApiWeb.ServiceControllerTest do
     test "returns all metadata versions", %{conn: conn} do
       conn = post(conn, Routes.service_path(conn, :create), @create_attrs)
       id = json_response(conn, 201)["metadata"]["service_id"]
+
       conn = put(conn, Routes.service_path(conn, :update, id), @update_attrs)
-      IEx.pry
       assert MetadataRepo.count == 2
+      versions = MetadataRepo.all
+
+      # order by inserted at desc mean the last updated is the first one
+      last_metadata = List.first(versions)
+      first_metadata = List.last(versions)
+      service = ServiceRepo.get_service!(id)
 
       conn = get(conn, Routes.service_versions_path(conn, :versions, id))
-      service = ServiceRepo.get_service!(id)
-      all_versions = MetadataRepo.all_versions(service)
-      assert length(all_versions) == 2
-
-      last_metadata = List.last(all_versions)
-      first_metadata = List.first(all_versions)
 
       assert json_response(conn, 200) == %{
         "service_id" => service.id,
         "service_name" => service.service_name,
         "versions" => [
           %{
-            "version_id" => last_metadata[:version_id],
-            "version_number" => last_metadata[:version_number]
+            "version_id" => last_metadata.version_id,
+            "version_number" => last_metadata.version_number,
+            "created_at" => NaiveDateTime.to_iso8601(last_metadata.inserted_at)
           },
           %{
-            "version_id" => first_metadata[:version_id],
-            "version_number" => first_metadata[:version_number]
+            "version_id" => first_metadata.version_id,
+            "version_number" => first_metadata.version_number,
+            "created_at" => NaiveDateTime.to_iso8601(first_metadata.inserted_at)
           }
         ]
       }

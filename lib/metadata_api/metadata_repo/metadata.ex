@@ -19,7 +19,8 @@ defmodule MetadataApi.MetadataRepo.Metadata do
   @doc false
   def changeset(metadata, attrs) do
     metadata
-    |> cast(attrs, [:data, :locale, :created_by, :updated_by, :version_id, :version_number])
+    |> cast(attrs, [:data, :locale, :created_by, :updated_by, :version_id, :version_number, :service_id])
+    |> cast_assoc(:service)
     |> validate_required([:data, :created_by, :updated_by])
   end
 end

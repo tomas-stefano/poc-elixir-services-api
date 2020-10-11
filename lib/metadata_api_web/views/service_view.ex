@@ -20,7 +20,8 @@ defmodule MetadataApiWeb.ServiceView do
     versions = Enum.map(metadata, fn(version) ->
       %{
         "version_id" => version[:version_id],
-        "version_number" => version[:version_number]
+        "version_number" => version[:version_number],
+        "created_at" => NaiveDateTime.to_iso8601(version[:inserted_at])
       }
     end)
 

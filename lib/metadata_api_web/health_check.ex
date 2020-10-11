@@ -1,7 +1,10 @@
-defmodule HealthCheck do
-  use Plug.Router
+defmodule MetadataApiWeb.HealthCheck do
+  import Plug.Conn
 
-  get "/health_check" do
-    send_resp(conn, 200, "Server is up!")
+  def init(_) do
+  end
+
+  def call(%Plug.Conn{} = conn, opts) do
+    send_resp(conn, 200, "Up!")
   end
 end
